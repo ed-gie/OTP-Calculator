@@ -17,6 +17,7 @@
     align-items: center;
     justify-content: flex-end;
     box-sizing: border-box;
+    flex-shrink: 0;
 }
 
 .buttons {
