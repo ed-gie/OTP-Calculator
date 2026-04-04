@@ -4,7 +4,7 @@ const display = document.querySelector(".display");
 const buttons = document.querySelector(".buttons");
 const controls = document.querySelector(".controls");
 const numbers = document.querySelector(".numbers");
-const operators = document.querySelector(".operators");
+const operators = document.querySelectorAll(".operator")
 
 function add(num1, num2) {
     return num1 + num2;
@@ -50,32 +50,25 @@ function operate(num1, num2, operator) {
 }
 
 buttons.addEventListener("click", (e) => {
-    if (!isNaN(e.target.textContent)) {
+    if (!isNaN(e.target.textContent) || (e.target.textContent === "." && !display.textContent.includes("."))) {
         if (resultDisplayed === true) {
             display.textContent = "";
             firstNumber = null;
             secondNumber = null;
+            op = "";
+            readyForSecondNumber = false;
             resultDisplayed = false;
         }
-        if (readyForSecondNumber === false) {
-            //input first number
+        if (readyForSecondNumber === false) {//input firstNumber
             display.textContent += e.target.textContent;
             firstNumber = display.textContent;
-
-            console.log(`firstNumber: ${firstNumber}`);
-            console.log(`secondNumber: ${secondNumber}`);
-            console.log(`readyForSecondNumber: ${readyForSecondNumber}`);
         }
-        else {
-            // input second number
-            if (op !== "") {
-                display.textContent = ""
+        else {//input secondNumber
+            if (secondNumber === null) {
+                display.textContent = "";
             }
             display.textContent += e.target.textContent;
             secondNumber = display.textContent;
-
-            console.log(`firstNumber: ${firstNumber}`);
-            console.log(`secondNumber: ${secondNumber}`);
         }
     }
     else if (e.target.textContent === "AC") {
@@ -83,56 +76,29 @@ buttons.addEventListener("click", (e) => {
         firstNumber = null;
         secondNumber = null;
         op = "";
-        document.querySelectorAll(".operator").forEach(btn => btn.style.border = "");
+        readyForSecondNumber = false;
+        operators.forEach(btn => btn.style.border = "");
+        display.style.fontSize = "";
     }
     else if (e.target.textContent === "⌫") {
         display.textContent = display.textContent.slice(0, -1);
     }
-    else if (e.target.classList.contains("operator")) {
-        if (readyForSecondNumber === true) {
-            op = e.target.textContent;
-            document.querySelectorAll(".operator").forEach(btn => btn.style.border = "");
-            e.target.style.border = "4px solid green";
-            return;
-        }
+    else if (e.target.classList.contains("operator")) {//input operator
         if (op !== "") {
-            display.textContent = operate(Number(firstNumber), Number(secondNumber), op); //result
+            operators.forEach(btn => btn.style.border = "");
+            display.textContent = operate(Number(firstNumber), Number(secondNumber), op);
+            firstNumber = display.textContent;
             secondNumber = null;
-            firstNumber = display.textContent;
-            document.querySelectorAll(".operator").forEach(btn => btn.style.border = "");
-            e.target.style.border = "4px solid green";
-            op = e.target.textContent;
-            readyForSecondNumber = true;
-
-            console.log(`firstNumber: ${firstNumber}`);
-            console.log(`secondNumber: ${secondNumber}`);
-            console.log(`readyForSecondNumber: ${readyForSecondNumber}`)
         }
-        else {
-            firstNumber = display.textContent;
-            op = e.target.textContent;
-            readyForSecondNumber = true;
-            e.target.style.border = "4px solid green";
-
-            console.log(`op: ${op}`);
-            console.log(`readyForSecondNumber: ${readyForSecondNumber}`)
-        }
-    }
-    else if (e.target.textContent === ".") {
-        if (!display.textContent.includes(".")) {
-            display.textContent += ".";
-        }
+        op = e.target.textContent;
+        readyForSecondNumber = true;
+        e.target.style.border = "4px solid green";
     }
     else if (e.target.textContent === "=") {
-        display.textContent = operate(Number(firstNumber), Number(secondNumber), op); //result
+        display.textContent = operate(Number(firstNumber), Number(secondNumber), op);
         firstNumber = display.textContent;
-        readyForSecondNumber = false;
-        document.querySelectorAll(".operator").forEach(btn => btn.style.border = "");
+        secondNumber = null;
+        operators.forEach(btn => btn.style.border = "");
         resultDisplayed = true;
-
-        console.log(`op: ${op}`);
-        console.log(`resultDisplayed: ${resultDisplayed}`);
-        console.log(`firstNumber: ${firstNumber}`);
-        console.log(`secondNumber: ${secondNumber}`);
     }
 })
