@@ -7,13 +7,12 @@ const operators = document.querySelectorAll(".operator");
 const equals = document.querySelector(".equals");
 const numbers = document.querySelectorAll(".numbers button");
 
-function consoleLog() {
-    console.log(`firstNumber: ${firstNumber}`);
-    console.log(`secondNumber: ${secondNumber}`);
-    console.log(`op: ${op}`);
-    console.log(`readyForSecondNumber: ${readyForSecondNumber}`);
-    console.log(`resultDisplayed: ${resultDisplayed}`);
-}
+let firstNumber = null;
+let secondNumber = null;
+let op = "";
+let readyForSecondNumber = false;
+let resultDisplayed = false;
+let isError = false;
 
 function add(num1, num2) {
     return num1 + num2;
@@ -30,18 +29,13 @@ function multiply(num1, num2) {
 function divide(num1, num2) {
     if (num2 === 0) {
         display.style.fontSize = "30px";
+        isError = true;
         return "You can't divide by 0 idiot!";
     }
     else {
-        return (num1 / num2).toFixed(5);
+        return parseFloat((num1 / num2).toFixed(5));
     }
 }
-
-let firstNumber = null;
-let secondNumber = null;
-let op = "";
-let readyForSecondNumber = false;
-let resultDisplayed = false;
 
 function operate(num1, num2, operator) {
     switch (operator) {
@@ -59,6 +53,7 @@ function operate(num1, num2, operator) {
 }
 
 buttons.addEventListener("click", (e) => {
+    if (isError && e.target.textContent !== "AC") return;
     if (!isNaN(e.target.textContent) || (e.target.textContent === "." && !display.textContent.includes("."))) {
         if (resultDisplayed === true) {
             display.textContent = "";
@@ -67,12 +62,10 @@ buttons.addEventListener("click", (e) => {
             op = "";
             readyForSecondNumber = false;
             resultDisplayed = false;
-            display.style.fontSize = "";
         }
         if (readyForSecondNumber === false) {//input firstNumber
             display.textContent += e.target.textContent;
             firstNumber = display.textContent;
-            consoleLog();
         }
         else {//input secondNumber
             if (secondNumber === null) {
@@ -80,8 +73,6 @@ buttons.addEventListener("click", (e) => {
             }
             display.textContent += e.target.textContent;
             secondNumber = display.textContent;
-
-            consoleLog();
         }
     }
     else if (e.target.textContent === "AC") {
@@ -92,42 +83,37 @@ buttons.addEventListener("click", (e) => {
         readyForSecondNumber = false;
         operators.forEach(btn => btn.style.border = "");
         display.style.fontSize = "";
-
-        consoleLog();
+        isError = false;
     }
     else if (e.target.textContent === "⌫") {
         display.textContent = display.textContent.slice(0, -1);
     }
-    else if (e.target.classList.contains("operator") && e.target.textContent !== "=") {//input operator
+    else if (e.target.classList.contains("operator")) {//input operator
         if (op !== "") {// consecutive operator
-            if (firstNumber === "You can't divide by 0 idiot!") {
-                firstNumber = null;
-                display.style.fontSize = "";
-            }
             operators.forEach(btn => btn.style.border = "");
             display.textContent = operate(Number(firstNumber), Number(secondNumber), op);
             firstNumber = display.textContent;
             secondNumber = null;
+            if (firstNumber === "You can't divide by 0 idiot!") {
+                firstNumber = null;
+            }
         }
         op = e.target.textContent;
         readyForSecondNumber = true;
         e.target.style.border = "4px solid green";
-
-        consoleLog();
     }
     else if (e.target.textContent === "=") {
+        if (firstNumber === null || secondNumber === null) return;
         display.textContent = operate(Number(firstNumber), Number(secondNumber), op);
         firstNumber = display.textContent;
         secondNumber = null;
         operators.forEach(btn => btn.style.border = "");
         resultDisplayed = true;
-        consoleLog()
     }
 })
 
 // keyboard support
 document.addEventListener("keydown", (e) => {
-    console.log("keydown fired", e.key);
     const opKeyMap = {
         "/": "÷",
         "*": "×",
